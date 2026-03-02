@@ -5,6 +5,8 @@
 
 # Import historical return time series 
 #----------------------------------------------------------------
+# adjust this accoridng to your wroking dir
+setwd("~/Documents/School/00_Courses/02_SMFI/02_Exercises/code/SMFI/code_snippets/lecture02")
 SPX <- read.csv2("GBMInput.csv", header = TRUE, stringsAsFactors=FALSE)
 names(SPX) <- c("date","index")          # Set column names
 SPX$date <- as.Date(SPX$date,"%d.%m.%Y") # Y = four-digit year, m = month, d = day
