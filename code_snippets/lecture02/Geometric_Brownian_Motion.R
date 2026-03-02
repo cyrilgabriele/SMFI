@@ -34,6 +34,8 @@ head(SPX)
 #----------------------------------------------------------------
 # Convert monthly to annual figures
 # Note: standard deviation converts by square-root of time
+
+# why *12? => annualization of the return
 g <- mean(SPX$log.returns, na.rm = TRUE)*12
 sigma <- sd(SPX$log.returns, na.rm = TRUE)*sqrt(12) 
 mu <- g + sigma^2/2
@@ -58,8 +60,11 @@ paths <- 100000                          # Number of simulated paths
 # Simulate Wiener process (increments and levels)
 #-----------------------------------------------
 # set.seed(13)
+# draw random variables from the normal distribution
 dW <- sqrt(dt)*rnorm(n = s*T, mean = 0, sd = 1)   # Vector of path increments
 Wt <- c(0, cumsum(dW))                            # Vector of path levels (starts at W0=0)
+
+# these are the points at time T (end of horizon) i.e. 100'000 in this case
 WT <- sqrt(T)*rnorm(paths, mean = 0, sd = 1)      # Vector of simulated values at maturity
 #-----------------------------------------------
 
@@ -89,7 +94,9 @@ plot(t,St, type = "l",col = "darkgreen", lwd = 3,
 
 # Simulate stock price and return distribution at T
 #-----------------------------------------------
+# ST ~ lognormal dist 
 ST <- S0*exp((mu-sigma^2/2)*T + sigma*WT)
+# RT ~ normal dist 
 RT <- (mu-sigma^2/2)*T + sigma*WT
 #-----------------------------------------------
 
