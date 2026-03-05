@@ -14,7 +14,7 @@ steps <- T * s
 tgrid <- seq(0, T, by = dt)   # length = steps + 1
 
 # ============================================================
-# (a) One path (set.seed(13)), Euler returns + price path
+# (a) One path, Euler returns + price path
 # ============================================================
 set.seed(13)
 
@@ -45,7 +45,7 @@ mu_hat <- (1 / dt) * R_bar   # = 250 * R_bar since dt = 1/250
 mu_muHat_abs_diff <- abs(mu - mu_hat)
 
 # ============================================================
-# (c) N = 10,000 independent return paths (set.seed(13) again!)
+# (c) N = 10,000 independent return paths 
 # ============================================================
 set.seed(13)   # required by the problem set
 
@@ -59,3 +59,30 @@ mu_hat_mc <- (1 / dt) * mean(R_mat)      # = 250 * mean(R_mat)
 
 mu_muHatmc_abs_diff     <- abs(mu - mu_hat_mc)
 muHat_muHatmc_abs_diff  <- abs(mu_hat - mu_hat_mc)
+
+# ============================================================
+# (d) Exact solution, N = 10,000 terminal prices at T = 3
+# ============================================================
+set.seed(13)
+
+S0      <- 100
+mu      <- 0.08
+sigma   <- 0.20
+T       <- 3
+N_paths <- 10000
+
+Z_T <- rnorm(N_paths, mean = 0, sd = 1)        # W_T = sqrt(T) * Z_T
+S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +     # exact GBM solution at T
+                sigma * sqrt(T) * Z_T)
+
+hist(S_T, breaks = 60, col = "lightblue", border = "white",
+     main = "Exact GBM terminal prices (T = 3)",
+     xlab = expression(S[T]))
+
+S_T_sample_mean <- mean(S_T)
+S_T_theoretical <- S0 * exp(mu * T)
+S_T_mean_diff   <- S_T_sample_mean - S_T_theoretical
+abs(mean(S_T_mean_diff))
+
+# Comment: 
+# Shape: the histogram indicates a log normal 
