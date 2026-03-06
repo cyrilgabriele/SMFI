@@ -73,7 +73,7 @@ T       <- 3
 N_paths <- 100000
 
 W_T <- rnorm(N_paths, mean = 0, sd = 1)  
-# approximation formula *1) (see below)
+# formula *1) (see below)
 S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +     # GBM approximation formula
                 sigma * sqrt(T) * W_T)
 
@@ -94,7 +94,7 @@ S_T_abs_mean_diff  <- abs(S_T_mean_diff)
 # Comment: 
 # Shape: the histogram indicates a log normal distribution.
 # This since W_T is sampled from a normal dist. and then taken exponentially in
-# the approximation formula *1). This results in a log-normal dist. See also the PDF
+# the formula *1). This results in a log-normal dist. See also the PDF
 # as a black curve with the parameters implied by the model.
 # Obviously we expect a (small) difference between the analytical closed-form 
 # solution and the Monte Carlo approixmation approach. The abs diff of ~0.07 
