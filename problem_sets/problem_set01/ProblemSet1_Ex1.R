@@ -74,8 +74,8 @@ N_paths <- 100000
 
 W_T <- rnorm(N_paths, mean = 0, sd = 1)  
 # formula *1) (see below)
-S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +     # GBM approximation formula
-                sigma * sqrt(T) * W_T)
+S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +    # GBM exact formula
+                sigma * sqrt(T) * W_T)        # where W follwoing the physical one
 
 hist(S_T, breaks = 60, col = "lightblue", border = "white",
      freq = FALSE,
