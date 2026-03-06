@@ -1,7 +1,6 @@
 # ============================================================
 # Problem Set 1 — Exercise 1 (a)–(c): GBM simulation (Euler)
 # ============================================================
-
 # ---------- Inputs ----------
 S0    <- 100
 mu    <- 0.08
@@ -69,20 +68,25 @@ S0      <- 100
 mu      <- 0.08
 sigma   <- 0.20
 T       <- 3
-N_paths <- 10000
+N_paths <- 100000
 
-Z_T <- rnorm(N_paths, mean = 0, sd = 1)        # W_T = sqrt(T) * Z_T
-S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +     # exact GBM solution at T
-                sigma * sqrt(T) * Z_T)
+W_T <- rnorm(N_paths, mean = 0, sd = 1)  
+# approximation formula *1)
+S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +     # GBM solution at T
+                sigma * sqrt(T) * W_T)
 
 hist(S_T, breaks = 60, col = "lightblue", border = "white",
-     main = "Exact GBM terminal prices (T = 3)",
+     main = "GBM terminal prices S_T (T = 3)",
      xlab = expression(S[T]))
 
 S_T_sample_mean <- mean(S_T)
 S_T_theoretical <- S0 * exp(mu * T)
-S_T_mean_diff   <- S_T_sample_mean - S_T_theoretical
-abs(mean(S_T_mean_diff))
-
+S_T_abs_mean_diff   <- abs(mean(S_T_sample_mean - S_T_theoretical))
 # Comment: 
-# Shape: the histogram indicates a log normal 
+# Shape: the histogram indicates a log normal distribution.
+# This since W_T is sampled from a normal dist. and then taken exponentially in
+# the approximation formula *1). This results in a log-normal dist.
+# Obviously we expect a (small) difference between the analytical closed-form 
+# solution and the Monte Carlo approixmation approach. The abs diff of ~0.07 
+# is in my opinion small w.r.t to the total value of ~127. 
+
