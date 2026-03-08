@@ -27,35 +27,52 @@ P_t <- function(I_path, pi0, g, alpha) {
 
 # a) simulation of I_T
 set.seed(13)
-Z <- rnorm(N_paths, mean=0, sd=1)
-W_T <- sqrt(T) * Z
-# usage here of the exact solution bc of hint but NOT risk-free
-I_T_mu <- I_0 * exp((mu - 0.5 * sigma^2) * T +     # GBM exact formula
-                  sigma * W_T)
-# usage here of the exact solution bc of hint but AND risk-free
-I_T_r <- I_0 * exp((r - 0.5 * sigma^2) * T +     # GBM exact formula
-                      sigma * W_T)
-
-
-hist(I_T_mu)
-# ---
-# b)
-set.seed(13)
-I_mat <- matrix(NA, nrow = N_paths, ncol = steps + 1)
-I_mat[, 1] <- I_0
+I_mat_mu <- matrix(NA, nrow = N_paths, ncol = steps + 1)
+I_mat_mu[, 1] <- I_0
 
 for (t in 1:steps) {
   Z_t <- rnorm(N_paths)
   W_t <- sqrt(dt) * Z_t
-  I_mat[, t + 1] <- I_mat[, t] * exp((mu - 0.5 * sigma^2) * dt +
+  I_mat_mu[, t + 1] <- I_mat_mu[, t] * exp((mu - 0.5 * sigma^2) * dt +
+                                             sigma * W_t)
+}
+
+I_T_mu <- I_mat_mu[, steps + 1]
+
+hist(I_T_mu,
+     main = expression(paste("Histogram of simulated ", tilde(I)[T])),
+     xlab = expression(tilde(I)[T]),
+     col = "lightblue",
+     border = "white")
+# ---
+# b)
+set.seed(13)
+I_mat_mu <- matrix(NA, nrow = N_paths, ncol = steps + 1)
+I_mat_mu[, 1] <- I_0
+
+for (t in 1:steps) {
+  Z_t <- rnorm(N_paths)
+  W_t <- sqrt(dt) * Z_t
+  I_mat_mu[, t + 1] <- I_mat_mu[, t] * exp((mu - 0.5 * sigma^2) * dt +
                                      sigma * W_t)
 }
 
-P_T <- apply(I_mat, 1, P_t, pi0 = pi_0, g = g, alpha = alpha)
-hist(P_T)
+P_T_mu <- apply(I_mat_mu, 1, P_t, pi0 = pi_0, g = g, alpha = alpha)
+hist(P_T_mu)
 # ---
 # c) 
+set.seed(13)
+I_mat_r <- matrix(NA, nrow = N_paths, ncol = steps + 1)
+I_mat_r[, 1] <- I_0
 
-  
-  
-  
+for (t in 1:steps) {
+  Z_t <- rnorm(N_paths)
+  W_t <- sqrt(dt) * Z_t
+  I_mat_r[, t + 1] <- I_mat_r[, t] * exp((r - 0.5 * sigma^2) * dt +
+                                       sigma * W_t)
+}
+
+P_T_r <- apply(I_mat_r, 1, P_t, pi0 = pi_0, g = g, alpha = alpha)
+hist(P_T_r)
+expected_payoff <- mean(P_T_r)        # expected payoff at maturity under Q
+V0 <- exp(-r * T) * expected_payoff   # product price at time 0
