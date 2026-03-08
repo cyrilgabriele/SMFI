@@ -76,3 +76,10 @@ P_T_r <- apply(I_mat_r, 1, P_t, pi0 = pi_0, g = g, alpha = alpha)
 hist(P_T_r)
 expected_payoff <- mean(P_T_r)        # expected payoff at maturity under Q
 V0 <- exp(-r * T) * expected_payoff   # product price at time 0
+
+# economic explanation: 
+# The product price differs from the initial investment because the contract
+# promises a payoff stream that is richer than risk-free compounding:
+# it guarantees 2% annually while pricing discounts at only 1%, and it
+# additionally offers upside participation in the index. Therefore, its
+# discounted expected payoff exceeds the initial investment.
