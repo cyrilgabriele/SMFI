@@ -68,7 +68,9 @@ mu_hat_mc <- (1 / dt) * mean(R_mat)      # = 250 * mean(R_mat)
 cat(sprintf("mu_hat_mc      : %.6f\n", mu_hat_mc))
 
 mu_muHatmc_abs_diff     <- abs(mu - mu_hat_mc)
+cat(sprintf("mu_muHatmc_abs_diff      : %.6f\n", mu_muHatmc_abs_diff))
 muHat_muHatmc_abs_diff  <- abs(mu_hat - mu_hat_mc)
+cat(sprintf("muHat_muHatmc_abs_diff      : %.6f\n", muHat_muHatmc_abs_diff))
 # Comment:
 # mu_hat_mc is much closer to the true drift mu than mu_hat from part (b),
 # because it is based on averaging returns over 10,000 independent simulated
@@ -104,15 +106,17 @@ curve(dlnorm(x, meanlog = mu_log, sdlog = sigma_log), add = TRUE,
       col = "darkred", lwd = 2)
 
 S_T_sample_mean <- mean(S_T)
+cat(sprintf("S_T_sample_mean     : %.6f\n", S_T_sample_mean))
 S_T_theoretical <- S0 * exp(mu * T)
 cat(sprintf("E[S_T_theoretical]      : %.6f\n", S_T_theoretical))
 S_T_mean_diff      <- S_T_sample_mean - S_T_theoretical
+cat(sprintf("S_T_mean_diff     : %.6f\n", S_T_mean_diff))
 S_T_abs_mean_diff  <- abs(S_T_mean_diff)
+cat(sprintf("S_T_abs_mean_diff     : %.6f\n", S_T_abs_mean_diff))
 # Comment: 
 # Shape: the histogram indicates a log normal distribution.
 # This since W_T is sampled from a normal dist. and then taken exponentially in
 # the formula *1). This results in a log-normal dist. See also the PDF
 # as a black curve with the parameters implied by the model.
 # Obviously we expect a (small) difference between the analytical closed-form 
-# solution and the Monte Carlo approixmation approach. The abs diff of ~0.07 
-# is in my opinion small w.r.t to the total value of ~127. 
+# solution and the Monte Carlo approixmation approach.
