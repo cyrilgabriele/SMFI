@@ -4,15 +4,13 @@
 set.seed(13)
 
 # ---------- Inputs ----------
-S0    <- 100
-sigma <- 0.20
-r     <- 0.015
-T     <- 2
-
-K1    <- 105
-K2    <- 115
-H     <- 20000
-
+S0      <- 100
+sigma   <- 0.20
+r       <- 0.015
+T       <- 2
+K1      <- 105
+K2      <- 115
+H       <- 20000
 N_paths <- 100000
 
 # a) simulation of S_T under Q (risk-free assumption)
@@ -38,4 +36,4 @@ probability_payofff = mean(payoff_indicator)
 expected_payoff = mean(D_T)
 V0 <- exp(-r * T) * expected_payoff
 # V0 = 2352.942
-V0
+cat(sprintf("V0      : %.6f\n", V0))

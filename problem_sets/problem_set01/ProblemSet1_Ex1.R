@@ -42,8 +42,16 @@ par(mfrow = c(1, 1))   # reset so subsequent plots are standalone
 # ============================================================
 R_bar  <- mean(Rt)
 mu_hat <- (1 / dt) * R_bar   # = 250 * R_bar since dt = 1/250
+cat(sprintf("mu_hat      : %.6f\n", mu_hat))
 
 mu_muHat_abs_diff <- abs(mu - mu_hat)
+# Comment:
+# mu_hat differs from mu because it is estimated from only one finite simulated
+# path. Each return contains a random shock term sigma * dW_t, so the sample
+# average is affected by simulation noise. Over 250 trading days, these random
+# shocks do not cancel out exactly, hence the annualized estimate mu_hat is not
+# exactly equal to the true drift mu. Over many independent paths, however,
+# the estimate should get closer to mu.
 
 # ============================================================
 # (c) N = 10,000 independent return paths 
@@ -57,9 +65,17 @@ dW_mat <- sqrt(dt) * Z_mat
 R_mat  <- mu * dt + sigma * dW_mat
 
 mu_hat_mc <- (1 / dt) * mean(R_mat)      # = 250 * mean(R_mat)
+cat(sprintf("mu_hat_mc      : %.6f\n", mu_hat_mc))
 
 mu_muHatmc_abs_diff     <- abs(mu - mu_hat_mc)
 muHat_muHatmc_abs_diff  <- abs(mu_hat - mu_hat_mc)
+# Comment:
+# mu_hat_mc is much closer to the true drift mu than mu_hat from part (b),
+# because it is based on averaging returns over 10,000 independent simulated
+# paths instead of just one single path. With many more observations, the
+# random Brownian shocks cancel out more effectively, so sampling error is
+# much smaller. Hence mu_hat_mc is more stable and typically closer to mu,
+# while mu_hat from one path can deviate noticeably just due to randomness.
 
 # ============================================================
 # (d) Exact solution, N = 10,000 terminal prices at T = 3
@@ -70,12 +86,12 @@ S0      <- 100
 mu      <- 0.08
 sigma   <- 0.20
 T       <- 3
-N_paths <- 100000
+N_paths <- 10000
 
-W_T <- rnorm(N_paths, mean = 0, sd = 1)  
+W_T <- sqrt(T) * rnorm(N_paths, mean = 0, sd = 1)  
 # formula *1) (see below)
 S_T <- S0 * exp((mu - 0.5 * sigma^2) * T +    # GBM exact formula
-                sigma * sqrt(T) * W_T)        # where W follwoing the physical one
+                sigma * W_T)                  # where W_t is the physical one
 
 hist(S_T, breaks = 60, col = "lightblue", border = "white",
      freq = FALSE,
@@ -89,6 +105,7 @@ curve(dlnorm(x, meanlog = mu_log, sdlog = sigma_log), add = TRUE,
 
 S_T_sample_mean <- mean(S_T)
 S_T_theoretical <- S0 * exp(mu * T)
+cat(sprintf("E[S_T_theoretical]      : %.6f\n", S_T_theoretical))
 S_T_mean_diff      <- S_T_sample_mean - S_T_theoretical
 S_T_abs_mean_diff  <- abs(S_T_mean_diff)
 # Comment: 
