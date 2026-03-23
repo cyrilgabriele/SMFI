@@ -107,7 +107,7 @@ for(i in 1:N){              # (iii) w_i >= 0              (short-sale constraint
 
 # Set range of portfolio means along which to minimize variance
 #-----------------------------------------------------------
-stepsize <- 0.0001                        # Stepsize for vector with fixed mean returns for optimization (first constraint)
+stepsize <- 0.0005                        # Stepsize for vector with fixed mean returns for optimization (first constraint)
 mu_bar <- seq(min(MU),max(MU),stepsize)   # Fixed mean returns for optimization (first constraint) 
 #mu_bar <- seq(0,1, stepsize)             # Use this for unconstrained frontier
 #-----------------------------------------------------------
