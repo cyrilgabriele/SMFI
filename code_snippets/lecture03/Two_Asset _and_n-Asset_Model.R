@@ -5,11 +5,11 @@
 
 # Parameter values
 #-----------------------------------------------------------
-muA <- 0.06      # Expected return stock A
-muB <- 0.045     # Expected return stock B
-sigmaA <- 0.1    # Return standard deviation stock A
-sigmaB <- 0.06   # Return standard deviation stock B
-rhoAB <- 1       # Correlation of the returns
+muA <- 0.06      # Expected return stock A => historical data
+muB <- 0.045     # Expected return stock B => historical data
+sigmaA <- 0.1    # Return standard deviation stock A => historical data
+sigmaB <- 0.06   # Return standard deviation stock B => historical data
+rhoAB <- 1       # Correlation of the returns => derived from the historical data
 #-----------------------------------------------------------
 wA <- seq(0,1,0.005)  # Sequence of different weights for A
 wB <- (1-wA)          # Corresponding weights for B
@@ -18,6 +18,7 @@ wB <- (1-wA)          # Corresponding weights for B
 # Compute combinations of expected return and 
 # return standard deviation for the two-asset portfolio
 #-----------------------------------------------------------
+# weighted avarage of the mean returns for stock A and stock B
 muP <- wA * muA + wB * muB              
 sigmaP <- sqrt(wA^2 * sigmaA^2 + wB^2 * sigmaB^2 
                + 2*wA*wB*rhoAB*sigmaA*sigmaB)
@@ -29,7 +30,7 @@ sigmaP <- sqrt(wA^2 * sigmaA^2 + wB^2 * sigmaB^2
 plot(sigmaP, muP, type = "l", 
      lwd = 6, xlim = c(0,0.15), ylim = c(0.03,0.07),
      xaxs = "i", yaxs = "i", col = "darkgreen", 
-     main = "Correlation = +1", 
+     main = paste("Correlation =", rhoAB), 
      xlab = "Return Standard Deviation", ylab = "Expected Return", 
      cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
 points(sigmaA, muA, pch = 21, cex = 2, lwd = 2, col = "black", bg = "darkgrey")
@@ -66,7 +67,7 @@ systematic <- sigma*sqrt(rho)
 plot(n, sigmaP, type = "l", 
      lwd = 6, xlim = c(1,20), ylim = c(0,0.12),
      xaxs = "i", yaxs = "i", col = "darkgreen", 
-     main = "Correlation = 0.5", 
+     main = paste("Correlation =", rho), 
      xlab = "Number of Assets n", ylab = "Return Standard Deviation", 
      cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
 abline(h = systematic, lty = 2, lwd = 4, col = "black")

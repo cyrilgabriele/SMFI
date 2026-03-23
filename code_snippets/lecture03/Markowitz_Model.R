@@ -14,7 +14,7 @@ library(quadprog)   # Load quadprog package
 # Import data
 #-----------------------------------------------------------
 # Save time series data from .csv file into a data frame
-data <- read.csv2("SMI_Stocks.csv", header = TRUE, sep =";", stringsAsFactors = FALSE, strip.white = TRUE)
+data <- read.csv2("./SMI_Stocks.csv", header = TRUE, sep =";", stringsAsFactors = FALSE, strip.white = TRUE)
 
 # Convert the first column of the data frame to date format
 data$Date <- as.Date(data$Date, "%d.%m.%Y")  
@@ -91,10 +91,10 @@ meq <- 2     # First "meq" constraints treated as equalities
 # dvec set to zero (we specify the target function in terms of the variance only)
 dvec <- rep(0,N)    
 
-# Amat includes left-hand-side values of the constraints; see slide 14
+# Amat includes left-hand-side values of the constraints; see **slide 14**
 Amat <- matrix(NA, N, n)    # Create matrix to store the constraints
 Amat[,1] <- MU              # (i)   w1*mu1 + w2*mu2 = mup (find minimum variance for a given mean)
-Amat[,2] <- rep(1, N)       # (ii)  SUM(w_i) = 1          (budget constraint)
+Amat[,2] <- rep(1, N)       # (ii)  SUM(w_i) = 1          (budget constraint) 
 for(i in 1:N){              # (iii) w_i >= 0              (short-sale constraints)
   constraint <- rep(0,N)    # Create vector with N zeros
   constraint[i] <- 1        # Set 1 for the short-sale constraints (w*1), 0 for unconstrained frontier
@@ -122,6 +122,8 @@ sigma <- rep(NA,length(mu_bar))           # Vector for standard deviations of ef
 
 
 #### Optimization for Efficient Frontier ####
+# bvec = c(mu_bar[i], 1, rep(0,N))
+# these contain the constrains from **page 14** of the lecture slides
 #-----------------------------------------------------------
 for(i in 1:length(mu_bar)) {
    w[,i] <- solve.QP(Dmat = SIGMA, 
