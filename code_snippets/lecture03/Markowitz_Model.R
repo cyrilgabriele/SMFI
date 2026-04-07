@@ -107,7 +107,14 @@ for(i in 1:N){              # (iii) w_i >= 0              (short-sale constraint
 
 # Set range of portfolio means along which to minimize variance
 #-----------------------------------------------------------
-stepsize <- 0.0005                        # Stepsize for vector with fixed mean returns for optimization (first constraint)
+# NOTE: With stepsize = 0.0001, the last mu_bar grid point equals max(MU) exactly.
+# The long-only constraints then force the optimizer onto a degenerate corner
+# (100% weight on the single asset with the highest mean return). In that corner
+# as many constraints as variables must be active, so solve.QP declares the
+# system inconsistent. Using a larger stepsize (e.g. 0.0005) shifts the last
+# grid value slightly below max(MU), leaving slack so the solver can find a
+# feasible diversified portfolio without hitting the degenerate endpoint.
+stepsize <- 0.00011                        # Stepsize for vector with fixed mean returns for optimization (first constraint)
 mu_bar <- seq(min(MU),max(MU),stepsize)   # Fixed mean returns for optimization (first constraint) 
 #mu_bar <- seq(0,1, stepsize)             # Use this for unconstrained frontier
 #-----------------------------------------------------------
