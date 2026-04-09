@@ -201,9 +201,48 @@ text(sd_1N_annualized, mean_1N_annualized,
      labels = "1/N", pos = 4, cex = 1, col = "blue")
 # --- --- --- 
 # Efficient portfolio with same standard deviation as 1/N
-points(sigma[idx_neareast_efficient_portfolio],
-       mu[idx_neareast_efficient_portfolio],
+points(sigma[idx_nearest_efficient_portfolio],
+       mu[idx_nearest_efficient_portfolio],
        pch = 17, cex = 1.6, col = "red")
-text(sigma[idx_neareast_efficient_portfolio],
-     mu[idx_neareast_efficient_portfolio],
+text(sigma[idx_nearest_efficient_portfolio],
+     mu[idx_nearest_efficient_portfolio],
      labels = "Efficient portfolio", pos = 4, cex = 1, col = "red")
+
+#########################################
+# d) Out-of-sample Sharpe Ratios
+#########################################
+
+# Test-period risky asset returns (exclude Date and Rf)
+test_returns <- test_data[, 2:(ncol(test_data)-1)]
+
+# Contemporaneous monthly risk-free rates in the test period
+rf_test <- test_data[, ncol(test_data)]   # same as test_data$Rf if the column is named "Rf"
+
+# 1/N portfolio: realized monthly returns in the test period
+ret_1N_test <- rowMeans(test_returns)
+
+# Efficient portfolio from part c): realized monthly returns in the test period
+w_eff <- w[, idx_nearest_efficient_portfolio]
+ret_eff_test <- as.numeric(as.matrix(test_returns) %*% w_eff)
+
+# Excess returns using the contemporaneous monthly risk-free rate
+excess_1N_test  <- ret_1N_test  - rf_test
+excess_eff_test <- ret_eff_test - rf_test
+
+# Out-of-sample Sharpe ratios (monthly, as defined in the problem set)
+SR_1N_oos  <- mean(excess_1N_test)  / sd(excess_1N_test)
+SR_eff_oos <- mean(excess_eff_test) / sd(excess_eff_test)
+
+# Optional: store everything in one data frame for inspection
+oos_results <- data.frame(
+  Date = test_data$Date,
+  rf = rf_test,
+  ret_1N = ret_1N_test,
+  ret_eff = ret_eff_test,
+  excess_1N = excess_1N_test,
+  excess_eff = excess_eff_test
+)
+
+# Print the Sharpe ratios
+cat("Out-of-sample Sharpe Ratio (1/N portfolio):", round(SR_1N_oos, 4), "\n")
+cat("Out-of-sample Sharpe Ratio (efficient portfolio):", round(SR_eff_oos, 4), "\n")

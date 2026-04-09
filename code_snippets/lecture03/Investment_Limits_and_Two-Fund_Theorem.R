@@ -92,7 +92,7 @@ for(i in 1:N){              # (iii) w_i >= 0                      (short-sale co
 
 # Set range of portfolio means along which to minimize variance
 #-----------------------------------------------------------
-stepsize <- 0.0001
+stepsize <- 0.00011
 mu_bar <- seq(min(MU), max(MU), stepsize)
 #-----------------------------------------------------------
 
@@ -305,7 +305,7 @@ for(i in 1:N){              # (iii) w_i >= 0                      (short-sale co
 
 # Set range of portfolio means along which to minimize variance
 #-----------------------------------------------------------
-stepsize <- 0.0001
+stepsize <- 0.00011
 mu_bar <- seq(min(MU), max(MU), stepsize)
 #-----------------------------------------------------------
 
