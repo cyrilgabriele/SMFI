@@ -1,5 +1,31 @@
 # Exercise 1: Import & clean data 
 #-----------------------------------------------------------
+options(scipen = 999)
+
+print_heading <- function(title) {
+  cat("\n", title, "\n", sep = "")
+}
+
+print_metric_table <- function(labels, values, value_name, digits = 4) {
+  out <- data.frame(
+    Asset = labels,
+    Value = round(as.numeric(values), digits),
+    row.names = NULL,
+    check.names = FALSE
+  )
+  names(out)[2] <- value_name
+  print(out, row.names = FALSE)
+}
+
+print_weight_table <- function(labels, weights, digits = 4) {
+  out <- data.frame(
+    Asset = labels,
+    Weight = round(as.numeric(weights), digits),
+    row.names = NULL
+  )
+  print(out, row.names = FALSE)
+}
+
 # Save time series data from .csv file into a data frame
 data <- read.csv2("Asset_Classes.csv", header = TRUE, stringsAsFactors = FALSE)
 
@@ -10,7 +36,10 @@ data$Date <- as.Date(data$Date, "%d.%m.%Y")
 for(i in 2:length(data[1,])){data[,i] <- as.numeric(data[,i])}
 
 # Display head and check structure (str) of the data frame
-head(data)
+print_heading("Exercise 1 - Data Preview")
+print(head(data))
+
+print_heading("Exercise 1 - Data Structure")
 str(data)
 
 #-----------------------------------------------------------
@@ -35,6 +64,20 @@ SIGMA <- cov(na.omit(data[, 2:(ncol(data)-1)])) * 12
 # Variances and standard deviations
 VAR <- diag(SIGMA)
 SD <- sqrt(VAR)
+asset_names <- colnames(data)[2:(ncol(data)-1)]
+names(MU) <- asset_names
+names(SD) <- asset_names
+dimnames(SIGMA) <- list(asset_names, asset_names)
+
+print_heading("Exercise 2 - Annualized Expected Returns")
+print_metric_table(asset_names, MU, "ExpectedReturn", digits = 4)
+
+print_heading("Exercise 2 - Annualized Standard Deviations")
+print_metric_table(asset_names, SD, "StdDev", digits = 4)
+
+print_heading("Exercise 2 - Annualized Covariance Matrix")
+print(round(SIGMA, 6))
+
 #---------------------------
 # preparation for the optimization
 library(quadprog)   # Load quadprog package
@@ -63,7 +106,7 @@ mu_bar <- seq(min(MU),max(MU),stepsize)   # Fixed mean returns for optimization 
 # Create objects to store efficient frontier
 #-----------------------------------------------------------
 w <- matrix(NA, N, length(mu_bar))        # Matrix for weights of efficient portfolios
-w[,1:10]                                  # View first 10 columns of matrix w to see structure
+# w[,1:10]                                # View first 10 columns of matrix w to see structure
 mu <- rep(NA,length(mu_bar))              # Vector for means of efficient portfolios
 sigma <- rep(NA,length(mu_bar))           # Vector for standard deviations of efficient portfolios
 #-----------------------------------------------------------
@@ -90,10 +133,15 @@ for(i in 1:length(mu_bar)) {
 min_var <- which.min(abs(min(sigma) - sigma)) 
 #Alternative that finds closest value
 #-----------------------------------------------------------
+print_heading("Exercise 2 - Minimum Variance Portfolio")
+cat("Index on efficient frontier:", min_var, "\n")
+cat("Annualized expected return:", round(mu[min_var], 4), "\n")
+cat("Annualized standard deviation:", round(sigma[min_var], 4), "\n")
+print_weight_table(asset_names, w[, min_var], digits = 4)
+
 #########################################
 # Plot the efficient frontier
 #########################################
-asset_names <- colnames(data)[2:(ncol(data)-1)]
 eff <- mu >= mu[min_var]
 
 x_all <- c(sigma[eff], SD)

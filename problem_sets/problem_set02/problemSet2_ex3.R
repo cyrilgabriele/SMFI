@@ -1,4 +1,29 @@
 library(quadprog)     # Load quadprog package
+options(scipen = 999)
+
+print_heading <- function(title) {
+  cat("\n", title, "\n", sep = "")
+}
+
+print_metric_table <- function(labels, values, value_name, digits = 4) {
+  out <- data.frame(
+    Asset = labels,
+    Value = round(as.numeric(values), digits),
+    row.names = NULL,
+    check.names = FALSE
+  )
+  names(out)[2] <- value_name
+  print(out, row.names = FALSE)
+}
+
+print_weight_table <- function(labels, weights, digits = 4) {
+  out <- data.frame(
+    Asset = labels,
+    Weight = round(as.numeric(weights), digits),
+    row.names = NULL
+  )
+  print(out, row.names = FALSE)
+}
 
 # Import & clean data (same as Ex. 1)
 #-----------------------------------------------------------
@@ -12,7 +37,10 @@ data$Date <- as.Date(data$Date, "%d.%m.%Y")
 for(i in 2:length(data[1,])){data[,i] <- as.numeric(data[,i])}
 
 # Display head and check structure (str) of the data frame
-head(data)
+print_heading("Exercise 3 - Data Preview")
+print(head(data))
+
+print_heading("Exercise 3 - Data Structure")
 str(data)
 
 # split now the data & use the hint i.e. by using the indices
@@ -43,6 +71,20 @@ SIGMA <- cov(na.omit(train_data[, 2:(ncol(train_data)-1)])) * 12
 # Variances and standard deviations
 VAR <- diag(SIGMA)
 SD <- sqrt(VAR)
+asset_names <- colnames(train_data)[2:(ncol(train_data)-1)]
+names(MU) <- asset_names
+names(SD) <- asset_names
+dimnames(SIGMA) <- list(asset_names, asset_names)
+
+print_heading("Exercise 3a - Annualized Expected Returns")
+print_metric_table(asset_names, MU, "ExpectedReturn", digits = 4)
+
+print_heading("Exercise 3a - Annualized Standard Deviations")
+print_metric_table(asset_names, SD, "StdDev", digits = 4)
+
+print_heading("Exercise 3a - Annualized Covariance Matrix")
+print(round(SIGMA, 6))
+
 #---------------------------
 # preparation for the optimization
 # Define number and type of constraints
@@ -86,8 +128,6 @@ for(i in 1:length(mu_bar)) {
   mu[i] <- t(w[,i]) %*% MU
   sigma[i] <- sqrt(t(w[,i]) %*% SIGMA %*% w[,i])}
 
-
-identical(mu,mu_bar)
 #-----------------------------------------------------------^
 # Find minimum variance portfolio
 #-----------------------------------------------------------
@@ -98,10 +138,15 @@ identical(mu,mu_bar)
 min_var <- which.min(abs(min(sigma) - sigma)) 
 #Alternative that finds closest value
 #-----------------------------------------------------------
+print_heading("Exercise 3a - Minimum Variance Portfolio")
+cat("Index on efficient frontier:", min_var, "\n")
+cat("Annualized expected return:", round(mu[min_var], 4), "\n")
+cat("Annualized standard deviation:", round(sigma[min_var], 4), "\n")
+print_weight_table(asset_names, w[, min_var], digits = 4)
+
 #########################################
 # Plot the efficient frontier
 #########################################
-asset_names <- colnames(data)[2:(ncol(data)-1)]
 eff <- mu >= mu[min_var]
 
 x_all <- c(sigma[eff], SD)
@@ -159,10 +204,20 @@ mean_1N_annualized <- mean_1N_monthly * 12
 sd_1N_monthly   <- sd(ret_1N)
 sd_1N_annualized <- sqrt(12) * sd_1N_monthly 
 
+print_heading("Exercise 3b - 1/N Portfolio Summary")
+cat("Monthly mean return:", round(mean_1N_monthly, 4), "\n")
+cat("Annualized mean return:", round(mean_1N_annualized, 4), "\n")
+cat("Monthly standard deviation:", round(sd_1N_monthly, 4), "\n")
+cat("Annualized standard deviation:", round(sd_1N_annualized, 4), "\n")
+
 idx_nearest_efficient_portfolio <- which.min(abs(sigma - sd_1N_annualized)) 
-mu[idx_nearest_efficient_portfolio]
-sigma[idx_nearest_efficient_portfolio]
-w[, idx_nearest_efficient_portfolio]
+w_eff <- w[, idx_nearest_efficient_portfolio]
+
+print_heading("Exercise 3c - Efficient Portfolio Matching 1/N Risk")
+cat("Index on efficient frontier:", idx_nearest_efficient_portfolio, "\n")
+cat("Annualized expected return:", round(mu[idx_nearest_efficient_portfolio], 4), "\n")
+cat("Annualized standard deviation:", round(sigma[idx_nearest_efficient_portfolio], 4), "\n")
+print_weight_table(asset_names, w_eff, digits = 4)
 
 #########################################
 # Replot efficient frontier and add 1/N portfolio
@@ -222,7 +277,6 @@ rf_test <- test_data[, ncol(test_data)]   # same as test_data$Rf if the column i
 ret_1N_test <- rowMeans(test_returns)
 
 # Efficient portfolio from part c): realized monthly returns in the test period
-w_eff <- w[, idx_nearest_efficient_portfolio]
 ret_eff_test <- as.numeric(as.matrix(test_returns) %*% w_eff)
 
 # Excess returns using the contemporaneous monthly risk-free rate
@@ -244,5 +298,12 @@ oos_results <- data.frame(
 )
 
 # Print the Sharpe ratios
-cat("Out-of-sample Sharpe Ratio (1/N portfolio):", round(SR_1N_oos, 4), "\n")
-cat("Out-of-sample Sharpe Ratio (efficient portfolio):", round(SR_eff_oos, 4), "\n")
+print_heading("Exercise 3d - Out-of-Sample Sharpe Ratios")
+sharpe_results <- data.frame(
+  Portfolio = c("1/N", "Efficient"),
+  MeanExcessReturn = round(c(mean(excess_1N_test), mean(excess_eff_test)), 4),
+  StdDevExcessReturn = round(c(sd(excess_1N_test), sd(excess_eff_test)), 4),
+  SharpeRatio = round(c(SR_1N_oos, SR_eff_oos), 4),
+  row.names = NULL
+)
+print(sharpe_results, row.names = FALSE)
