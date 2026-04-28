@@ -50,3 +50,4 @@ rsconnect/
 
 # custom 
 .DS_Store
+.positai
