@@ -11,9 +11,6 @@ set.seed(13)
 
 yc.data <- read.csv2("YieldCurve.csv", header = TRUE, stringsAsFactors = FALSE)
 
-str(yc.data)
-head(yc.data)
-
 # Extract chosen yield curve column
 # Adjust column index if your YieldCurve.csv uses another column.
 yields <- as.numeric(yc.data[, 2])
@@ -38,7 +35,7 @@ b3 <- NSSmodel[4]
 lambda1 <- 1 / NSSmodel[5]
 lambda2 <- 1 / NSSmodel[6]
 
-cat("\nExercise 1 a) NSS parameter estimates\n")
+cat("\nNSS parameter estimates\n")
 cat(sprintf("b0      : %.6f\n", b0))
 cat(sprintf("b1      : %.6f\n", b1))
 cat(sprintf("b2      : %.6f\n", b2))
@@ -47,8 +44,9 @@ cat(sprintf("lambda1 : %.6f\n", lambda1))
 cat(sprintf("lambda2 : %.6f\n", lambda2))
 
 # ---------------------------------------------------------------
-# Exercise 1 b) Spot yield curve function y0(T)
+# Spot yield curve function y0(T)
 # ---------------------------------------------------------------
+
 # y0(T) returns DECIMAL rates, e.g. 0.025 for 2.5%.
 y0 <- function(T){
   F1 <- (1 - exp(-lambda1 * T)) / (lambda1 * T)
@@ -58,59 +56,22 @@ y0 <- function(T){
   (b0 + b1 * F1 + b2 * F2 + b3 * F3) / 100
 }
 
-plot(maturity, yields,
-     type = "p",
-     cex = 1.25,
-     xaxs = "i",
-     yaxs = "i",
-     pch = 21,
-     col = "black",
-     bg = "darkgreen",
-     main = "Spot Yield Curve",
-     xlim = c(0, 31),
-     ylim = c(0, 5),
-     cex.axis = 1.5,
-     cex.lab = 1.5,
-     cex.main = 1.5,
-     xlab = "Maturity in years",
-     ylab = "Yield in % p.a.")
-
-lines(maturity, y0(maturity) * 100,
-      col = "darkgreen",
-      lwd = 2)
-
 # ---------------------------------------------------------------
 # Exercise 1 c) Arbitrage-free forward rate function f0(T1,T2)
 # ---------------------------------------------------------------
+
 # f0(T1,T2) returns DECIMAL rates.
 f0 <- function(T1, T2){
   (y0(T2) * T2 - y0(T1) * T1) / (T2 - T1)
 }
 
-T_1 <- 1
-T_2 <- seq(T_1 + 0.01, 30, by = 0.01)
-
-f0_curve <- f0(T_1, T_2)
-
-plot(T_2, f0_curve * 100,
-     type = "l",
-     lwd = 2,
-     col = "darkgreen",
-     xaxs = "i",
-     yaxs = "i",
-     main = "Forward Rate Curve from T1 = 1",
-     xlim = c(1, 30),
-     ylim = c(0, 5),
-     cex.axis = 1.5,
-     cex.lab = 1.5,
-     cex.main = 1.5,
-     xlab = "Termination date T2 in years",
-     ylab = "Forward rate in % p.a.")
+# T_1 <- 1
+# T_2 <- seq(T_1 + 0.01, 30, by = 0.01)
+# f0_curve <- f0(T_1, T_2)
 
 # ---------------------------------------------------------------
 # Exercise 1 d) Instantaneous forward rate function f0inst(T)
 # ---------------------------------------------------------------
-
 # f0inst(T) returns DECIMAL rates.
 f0inst <- function(T){
   F1 <- exp(-lambda1 * T)
@@ -120,37 +81,23 @@ f0inst <- function(T){
   (b0 + b1 * F1 + b2 * F2 + b3 * F3) / 100
 }
 
-T_grid <- seq(0.25, 30, by = 0.01)
-
-f0inst_curve <- f0inst(T_grid)
-
-plot(T_grid, f0inst_curve * 100,
-     type = "l",
-     lwd = 2,
-     col = "darkgreen",
-     xaxs = "i",
-     yaxs = "i",
-     main = "Instantaneous Forward Rate Curve",
-     xlim = c(0.25, 30),
-     ylim = c(0, 5),
-     cex.axis = 1.5,
-     cex.lab = 1.5,
-     cex.main = 1.5,
-     xlab = "Effective date T in years",
-     ylab = "Instantaneous forward rate in % p.a.")
+# T_grid <- seq(0.25, 30, by = 0.01)
+# f0inst_curve <- f0inst(T_grid)
 
 # ================================================================
 # EXERCISE 2
 # Hull-White Model
 # ================================================================
 # ---------------------------------------------------------------
-# Exercise 2 a) Simulate Hull-White short-rate paths
+# Simulate Hull-White short-rate paths
 # ---------------------------------------------------------------
 paths <- 1000
 alpha <- 0.20
-sigma <- 0.01
-T <- 10
-s <- 250
+sigma <- 0.01     
+T <- 5              # Maturity T 
+
+# quarterly increments for the MC simulation
+s <- 4
 
 dt <- rep(1 / s, T * s)
 t <- c(0, cumsum(dt))
@@ -227,11 +174,10 @@ legend("bottomright",
        bty = "n",
        cex = 1.25)
 
-
 # ---------------------------------------------------------------
-# Exercise 2 b) Histograms after 1, 5, and 10 years
+# Histograms after 1 to 5 years
 # ---------------------------------------------------------------
-years <- c(1, 5, 10)
+years <- c(seq(1, T))
 
 year.idx <- years * s + 1
 rt.selected <- rt[, year.idx]
@@ -239,7 +185,7 @@ rt.selected <- rt[, year.idx]
 colnames(rt.selected) <- paste0("t = ", years)
 
 par.old <- par(no.readonly = TRUE)
-par(mfrow = c(1, 3))
+par(mfrow = c(1, 5))
 
 for(i in seq_along(years)){
   
@@ -278,18 +224,13 @@ rt.summary <- data.frame(
   sd_percent = apply(rt.selected, 2, sd) * 100
 )
 
-cat("\nExercise 2 b) Short-rate summary\n")
+cat("\nShort-rate summary\n")
 print(rt.summary)
 
-# ---------------------------------------------------------------
-# Exercise 2 c) Expected future zero-coupon bond price
-# ---------------------------------------------------------------
-# Bond is observed in 3 years and has maturity of 1 year.
-# Therefore: t = 3, T = 4.
-t_bond <- 3
-T_bond <- 4
-notional <- 100
 
+# ---------------------------------------------------------------
+# Expected future zero-coupon bond price
+# ---------------------------------------------------------------
 # Initial zero-coupon bond price from today's curve
 P0 <- function(T){
   exp(-y0(T) * T)
@@ -315,56 +256,45 @@ ln_P_tilde_t <- function(t_bond, T_bond, r_t){
     B(t_bond, T_bond) * r_t
 }
 
-idx_bond <- t_bond * s + 1
-
-r_t_bond <- rt[, idx_bond]
-
-ln_prices <- ln_P_tilde_t(t_bond, T_bond, r_t_bond)
-
-bond_prices <- notional * exp(ln_prices)
-
-expected_bond_price <- mean(bond_prices)
-
-cat("\nExercise 2 c) Expected future zero-coupon bond price\n")
-cat(sprintf("Expected bond price: %.6f\n", expected_bond_price))
-
 # ---------------------------------------------------------------
-# Exercise 2 d) Caplet price under traditional risk-neutral measure Q*
+# Pricing of the Short-Rate Realized Volatility Bonus Product: 
+# Done under traditional risk-neutral measure Q*
 # ---------------------------------------------------------------
-tk <- 2
-tk_plus_1 <- 3
+# REMARK: T and s set above since already needed for the simulation
+#         of the Hull-White short-rate paths
 
-delta_tk <- tk_plus_1 - tk
+# self defined assumptions/definitions
+notional <- 10000000    
+K_vol = 0.0075                # volatility strike = 0.75% 
 
-N <- 1000000
-y_x <- 0.015
+# Index of payoff date
+idx_pay <- T * s + 1   # with s = 4, this gives 21
 
-idx_fix <- tk * s + 1
-idx_pay <- tk_plus_1 * s + 1
+# Quarterly short-rate changes:
+# delta_r[j, i] = r_j(t_i) - r_j(t_{i-1})
+delta_r <- rt_product[, -1] - rt_product[, -ncol(rt_product)]
 
-# Simulated short rate at fixing date tk = 2
-r_tk <- rt[, idx_fix]
+# Short-rate paths (= 1000 ; set above) from time 0 to time T_product
+rt_product <- rt[, 1:idx_pay]
 
-# Compute log zero-coupon bond price ln P_tk(tk+1)
-ln_P_tk_tk1 <- ln_P_tilde_t(tk, tk_plus_1, r_tk)
+# Realized annualized short-rate volatility per path
+RV_T <- sqrt(rowSums(delta_r^2) / T)
 
-# Recover future zero-coupon yield y_tk(tk+1)
-y_tilde_tk_tk1 <- -ln_P_tk_tk1 / delta_tk
+# Payoff at T_product
+payoff_T <- notional * pmax(RV_T - K_vol, 0)
 
-# Caplet payoff at payment date tk+1
-payoff_tk1 <- N * delta_tk * pmax(y_tilde_tk_tk1 - y_x, 0)
-
-# Pathwise stochastic discount factor from 0 to tk+1 under Q*
-DF_0_tk1 <- exp(
-  -rowSums(rt[, 1:(idx_pay - 1), drop = FALSE]) * dt[1]
+# Pathwise discount factor from 0 to T_product under Q*
+DF_0_T <- exp(
+  -rowSums(rt_product[, 1:(ncol(rt_product) - 1), drop = FALSE]) * dt[1]
 )
 
-# Monte Carlo caplet price
-caplet_price <- mean(DF_0_tk1 * payoff_tk1)
+# Monte Carlo price
+volatility_bonus_price <- mean(DF_0_T * payoff_T)
 
-# Optional Monte Carlo standard error
-caplet_price_se <- sd(DF_0_tk1 * payoff_tk1) / sqrt(paths)
+# Monte Carlo standard error
+volatility_bonus_price_se <- sd(DF_0_T * payoff_T) / sqrt(paths)
 
-cat("\nExercise 2 d) Caplet price under Q*\n")
-cat(sprintf("Caplet price: %.6f\n", caplet_price))
-cat(sprintf("Monte Carlo SE: %.6f\n", caplet_price_se))
+cat("\nShort-Rate Realized Volatility Bonus Pricing under Q*\n")
+cat(sprintf("Expected realized volatility: %.6f\n", mean(RV_T)))
+cat(sprintf("Price today: %.6f\n", volatility_bonus_price))
+cat(sprintf("Monte Carlo SE: %.6f\n", volatility_bonus_price_se))
