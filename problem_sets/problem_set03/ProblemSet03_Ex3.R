@@ -123,7 +123,7 @@ for(j in 1:paths){
     # Time-varying mean-reversion level
     theta <- df0inst_dt(t[i - 1]) + alpha * f0inst(t[i - 1])
     
-    # Wiener increment: ΔW ~ N(0, Δt)
+    # Wiener increment: detla_W ~ N(0, delta_t)
     dW <- rnorm(n = 1, mean = 0, sd = sqrt(dt[1]))
     
     # Euler discretization of Hull-White:
@@ -269,6 +269,9 @@ K_vol = 0.0075                # volatility strike = 0.75%
 
 # Index of payoff date
 idx_pay <- T * s + 1   # with s = 4, this gives 21
+
+# Short-rate paths from time 0 to product maturity T
+rt_product <- rt[, 1:idx_pay]
 
 # Quarterly short-rate changes:
 # delta_r[j, i] = r_j(t_i) - r_j(t_{i-1})

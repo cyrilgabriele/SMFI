@@ -176,7 +176,7 @@ for(j in 1:paths){
     # Time-varying mean-reversion level
     theta <- df0inst_dt(t[i - 1]) + alpha * f0inst(t[i - 1])
     
-    # Wiener increment: ΔW ~ N(0, Δt)
+    # Wiener increment: detla_W ~ N(0, delta_t)
     dW <- rnorm(n = 1, mean = 0, sd = sqrt(dt[1]))
     
     # Euler discretization of Hull-White:
