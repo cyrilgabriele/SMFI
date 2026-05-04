@@ -15,12 +15,51 @@ yc.data <- read.csv2("YieldCurve.csv", header = TRUE, stringsAsFactors = FALSE)
 # Adjust column index if your YieldCurve.csv uses another column.
 yields <- as.numeric(yc.data[, 2])
 
+cat("
+Exercise 3: Short-Rate Realized Volatility Bonus Product
+
+Product description.
+
+The product is a five-year Short-Rate Realized Volatility Bonus Product. 
+It pays a positive amount at maturity if the realized annualized volatility 
+of the Hull-White short rate exceeds a fixed volatility strike. Economically, 
+the product is attractive to an investor who wants exposure to unusually large 
+movements in short rates, independently of whether rates move upward or downward.
+
+Model assumptions.
+
+The short rate follows the Hull-White model under the traditional risk-neutral 
+measure Q*. I use alpha = 0.20, sigma = 0.01, 1000 Monte Carlo paths, quarterly 
+time steps, maturity T = 5 years, notional N = 10,000,000, and volatility strike 
+K_vol = 0.0075.
+
+Formal payoff.
+
+Let 0 = t_0 < t_1 < ... < t_n = T be the quarterly simulation grid and let r_t 
+be the simulated short rate. Define
+
+RV_T = sqrt((1 / T) * sum_{i=1}^n (r_{t_i} - r_{t_{i-1}})^2).
+
+The payoff at maturity T is
+
+X_T = N * max(RV_T - K_vol, 0).
+
+The time-0 price under Q* is estimated by
+
+V_0 = E^{Q*}[exp(-sum_{i=0}^{n-1} r_{t_i} * Delta t) * X_T].
+
+Result.
+
+The Monte Carlo price is 24,858.77 with standard error 422.70.
+
+")
+
 # ================================================================
-# EXERCISE 1
+# Part 1
 # Nelson-Siegel-Svensson Model
 # ================================================================
 # ---------------------------------------------------------------
-# Exercise 1 a) Estimate NSS model
+# Estimate NSS model
 # ---------------------------------------------------------------
 maturity <- c(3/12, 6/12, 9/12, seq(1, 30, 1))
 
@@ -57,7 +96,7 @@ y0 <- function(T){
 }
 
 # ---------------------------------------------------------------
-# Exercise 1 c) Arbitrage-free forward rate function f0(T1,T2)
+# Arbitrage-free forward rate function f0(T1,T2)
 # ---------------------------------------------------------------
 
 # f0(T1,T2) returns DECIMAL rates.
@@ -70,7 +109,7 @@ f0 <- function(T1, T2){
 # f0_curve <- f0(T_1, T_2)
 
 # ---------------------------------------------------------------
-# Exercise 1 d) Instantaneous forward rate function f0inst(T)
+# Instantaneous forward rate function f0inst(T)
 # ---------------------------------------------------------------
 # f0inst(T) returns DECIMAL rates.
 f0inst <- function(T){

@@ -281,6 +281,14 @@ rt.summary <- data.frame(
 cat("\nExercise 2 b) Short-rate summary\n")
 print(rt.summary)
 
+cat("
+The simulated short rate is approximately normally distributed at all three horizons, 
+which is consistent with the Gaussian Hull-White / Ornstein-Uhlenbeck structure. 
+The normal density fits the histogram well. The dispersion increases with the horizon 
+because uncertainty accumulates over time, although mean reversion prevents the variance 
+from growing without bound. Negative short rates occur in some paths, which is a known 
+feature of the Gaussian Hull-White model.
+")
 # ---------------------------------------------------------------
 # Exercise 2 c) Expected future zero-coupon bond price
 # ---------------------------------------------------------------
